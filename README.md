@@ -59,7 +59,7 @@ By default, the widget uses the iPhone system language.
 For each publication, the widget shows:
 
 - **Publication date**
-- **Audit number** (without the `cdf-` / `efk-` prefix)
+- **Audit number**
 - **Audit title**
 - **Audited entity (acronym)**
 
