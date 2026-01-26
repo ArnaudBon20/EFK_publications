@@ -5,7 +5,8 @@ An **iOS Scriptable widget** that displays the **upcoming publications of the Sw
 The widget is **bilingual (FR / DE)**, updates automatically, and compensates for the delayed updates on the official website.
 
 ---
-
+![Widget iOs](https://github.com/user-attachments/assets/6a5d6fb9-c651-4a11-9980-4352b4a2d6f1)
+---
 ## ✨ Features
 
 - 📅 Displays **upcoming audit publications**
