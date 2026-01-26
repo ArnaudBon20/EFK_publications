@@ -108,7 +108,6 @@ The script is easy to extend:
 ## 📄 License
 
 Internal / experimental use.  
-Adapt as needed according to CDF / EFK publication and distribution rules.
 
 ---
 
