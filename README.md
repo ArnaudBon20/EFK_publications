@@ -18,6 +18,7 @@ The widget is **bilingual (FR / DE)**, updates automatically, and compensates fo
 - 🗂️ **Local cache** to reduce unnecessary network requests
 - 🎨 Clean and minimal design, aligned with institutional colors
 - 🔗 Tap on the widget to open the official CDF / EFK webpage
+- 📅 Display of the message “Tonight, 11 p.m.” when posts are on the same day **New**
 
 ---
 
