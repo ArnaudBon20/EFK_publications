@@ -203,16 +203,40 @@ class PublicationsWidget {
     return cachedFiltered;
   }
 
-  decodeHtmlEntities(str) {
-    if (!str) return "";
-    return String(str)
-      .replace(/&nbsp;/gi, " ")
-      .replace(/&amp;/gi, "&")
-      .replace(/&quot;/gi, '"')
-      .replace(/&#039;/gi, "'")
-      .replace(/&lt;/gi, "<")
-      .replace(/&gt;/gi, ">");
-  }
+ decodeHtmlEntities(str) {
+  if (!str) return "";
+
+  return String(str)
+    // Entités HTML nommées
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#039;/gi, "'")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+
+    // Entités numériques correctes: &#8217;
+    .replace(/&#(\d+);/g, (_, code) => {
+      try {
+        return String.fromCharCode(parseInt(code, 10));
+      } catch {
+        return _;
+      }
+    })
+
+    // Entités numériques mal formées: &#8217:
+    .replace(/&#(\d+):/g, (_, code) => {
+      try {
+        return String.fromCharCode(parseInt(code, 10));
+      } catch {
+        return _;
+      }
+    })
+
+    // Normalisation apostrophes typographiques
+    .replace(/[’‘‛]/g, "'")
+    .trim();
+}
 
   parseHTML(html) {
     const pubs = [];
