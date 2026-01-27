@@ -50,7 +50,7 @@ const CFG = isDE
       cacheKey: "efk_publications_cache_de",
       lastUpdateKey: "efk_last_update_de",
       footerLocale: "de-CH",
-      todayLabel: "Heute Abend 23 Uhr",
+      todayLabel: "Heute Abend 23 Uhr", // <- demandé
     }
   : {
       url: "https://www.efk.admin.ch/fr/prochaines-publications/",
@@ -65,7 +65,7 @@ const CFG = isDE
       cacheKey: "cdf_publications_cache_fr",
       lastUpdateKey: "cdf_last_update_fr",
       footerLocale: "fr-CH",
-      todayLabel: "Ce soir, 23h",
+      todayLabel: "Ce soir, 23h", // <- demandé
     };
 
 // --- Mapping entités -> acronymes (FR / DE) ---
@@ -84,17 +84,18 @@ const ENTITY_MAP = {
   "Eidgenössisches Departement für Umwelt, Verkehr, Energie und Kommunikation": "UVEK",
 
   // FR
-  "Secrétariat d’Etat à l’économie": "SECO",
+  "Secrétariat d'Etat à l'économie": "SECO",
+  "Secrétariat d’Etat à l’économie": "SECO", // apostrophe typographique (sécurité)
   "Direction du développement et de la coopération": "DDC",
   "Secrétariat d'Etat aux migrations": "SEM",
   "Autorité fédérale de surveillance des marchés financiers": "FINMA",
   "Département fédéral des affaires étrangères": "DFAE",
-  "Département fédéral de l’intérieur": "DFI",
+  "Département fédéral de l'intérieur": "DFI",
   "Département fédéral de justice et police": "DFJP",
   "Département fédéral de la défense, de la protection de la population et des sports": "DDPS",
   "Département fédéral des finances": "DFF",
-  "Département fédéral de l’économie, de la formation et de la recherche": "DEFR",
-  "Département fédéral de l’environnement, des transports, de l’énergie et de la communication": "DETEC",
+  "Département fédéral de l'économie, de la formation et de la recherche": "DEFR",
+  "Département fédéral de l'environnement, des transports, de l'énergie et de la communication": "DETEC",
 };
 
 class PublicationsWidget {
@@ -105,19 +106,6 @@ class PublicationsWidget {
     this.lastUpdatePath = this.fm.joinPath(this.fm.documentsDirectory(), cfg.lastUpdateKey + ".txt");
   }
 
-formatOrTodayLabel(dateStr) {
-  const d = this.parseDMY(dateStr);
-  if (!d) return this.formatDate(dateStr);
-
-  const now = new Date();
-  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-
-  // même jour => libellé spécial
-  if (d.getTime() === todayMidnight.getTime()) return this.cfg.todayLabel;
-
-  return this.formatDate(dateStr);
-}
-  
   async run() {
     const widget = await this.createWidget();
     if (config.runsInWidget) {
@@ -218,31 +206,37 @@ formatOrTodayLabel(dateStr) {
     return cachedFiltered;
   }
 
- decodeHtmlEntities(str) {
-  if (!str) return "";
+  // Décodage HTML (nommées + numériques, y compris variantes mal formées)
+  decodeHtmlEntities(str) {
+    if (!str) return "";
+    return String(str)
+      // Entités HTML nommées
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&amp;/gi, "&")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#039;/gi, "'")
+      .replace(/&lt;/gi, "<")
+      .replace(/&gt;/gi, ">")
 
-  return String(str)
-    // Entités HTML nommées
-    .replace(/&nbsp;/gi, " ")
-    .replace(/&amp;/gi, "&")
-    .replace(/&quot;/gi, '"')
-    .replace(/&#039;/gi, "'")
-    .replace(/&lt;/gi, "<")
-    .replace(/&gt;/gi, ">")
+      // Cas fréquent: &amp;#8217; (double encodage)
+      .replace(/&amp;#(\d+);/g, "&#$1;")
 
-    // Entités numériques correctes: &#8217;
-    .replace(/&#(\d+);/g, (_, code) => {
-      try {
-        return String.fromCharCode(parseInt(code, 10));
-      } catch {
-        return _;
-      }
-    })
+      // Entités numériques correctes: &#8217;
+      .replace(/&#(\d+);/g, (_, code) => {
+        const n = parseInt(code, 10);
+        return isNaN(n) ? _ : String.fromCharCode(n);
+      })
 
-    // Normalisation apostrophes typographiques
-    .replace(/[’‘‛]/g, "'")
-    .trim();
-}
+      // Entités numériques mal formées: &#8217:
+      .replace(/&#(\d+):/g, (_, code) => {
+        const n = parseInt(code, 10);
+        return isNaN(n) ? _ : String.fromCharCode(n);
+      })
+
+      // Normalisation apostrophes typographiques
+      .replace(/[’‘‛]/g, "'")
+      .trim();
+  }
 
   parseHTML(html) {
     const pubs = [];
@@ -322,28 +316,38 @@ formatOrTodayLabel(dateStr) {
     return this.cfg.formatDate(d, mIdx, y, this.cfg.months);
   }
 
-  // --- Remplace certains noms d'entités par leur acronyme ---
-normalizeEntity(entity) {
-  if (!entity) return entity;
+  // Si la date = aujourd'hui => label spécial, sinon date normale
+  formatOrTodayLabel(dateStr) {
+    const d = this.parseDMY(dateStr);
+    if (!d) return this.formatDate(dateStr);
 
-  // 1) On (re)décodage ici aussi (important pour le cache !)
-  let clean = this.decodeHtmlEntities(String(entity));
+    const now = new Date();
+    const sameDay =
+      d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate();
 
-  // 2) On convertit les apostrophes typographiques en apostrophe simple
-  clean = clean.replace(/[’‘‛]/g, "'");
+    if (sameDay) return this.cfg.todayLabel;
+    return this.formatDate(dateStr);
+  }
 
-  // 3) Petit nettoyage
-  clean = clean.replace(/\s*\/\s*$/, "").trim();
+  // Remplace certains noms d'entités par leur acronyme (robuste, même si ça vient du cache)
+  normalizeEntity(entity) {
+    if (!entity) return entity;
 
-  return ENTITY_MAP[clean] || clean;
-}
+    let clean = this.decodeHtmlEntities(String(entity));
+    clean = clean.replace(/[’‘‛]/g, "'"); // sécurité
+    clean = clean.replace(/\s*\/\s*$/, "").trim();
+
+    return ENTITY_MAP[clean] || clean;
+  }
 
   async createWidget() {
     const widget = new ListWidget();
     widget.backgroundColor = LIGHT_GRAY;
     widget.url = this.cfg.url;
 
-    // Mise en forme compacte (comme ta version parfaite)
+    // Mise en forme compacte
     widget.setPadding(14, 14, 10, 14);
 
     const publications = await this.getPublications();
@@ -395,7 +399,7 @@ normalizeEntity(entity) {
 
         stack.addSpacer(1);
 
-        // ✅ Acronyme si mapping connu, sinon texte original
+        // Acronyme si mapping connu, sinon texte original
         const entityText = stack.addText(this.normalizeEntity(pub.entity));
         entityText.font = Font.systemFont(8);
         entityText.textColor = TEXT_SECONDARY;
