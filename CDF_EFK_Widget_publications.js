@@ -82,17 +82,17 @@ const ENTITY_MAP = {
   "Eidgenössisches Departement für Umwelt, Verkehr, Energie und Kommunikation": "UVEK",
 
   // FR
-  "Secrétariat d'Etat à l'économie": "SECO",
+  "Secrétariat d’Etat à l’économie": "SECO",
   "Direction du développement et de la coopération": "DDC",
   "Secrétariat d'Etat aux migrations": "SEM",
   "Autorité fédérale de surveillance des marchés financiers": "FINMA",
   "Département fédéral des affaires étrangères": "DFAE",
-  "Département fédéral de l'intérieur": "DFI",
+  "Département fédéral de l’intérieur": "DFI",
   "Département fédéral de justice et police": "DFJP",
   "Département fédéral de la défense, de la protection de la population et des sports": "DDPS",
   "Département fédéral des finances": "DFF",
-  "Département fédéral de l'économie, de la formation et de la recherche": "DEFR",
-  "Département fédéral de l'environnement, des transports, de l'énergie et de la communication": "DETEC",
+  "Département fédéral de l’économie, de la formation et de la recherche": "DEFR",
+  "Département fédéral de l’environnement, des transports, de l’énergie et de la communication": "DETEC",
 };
 
 class PublicationsWidget {
@@ -308,11 +308,20 @@ class PublicationsWidget {
   }
 
   // --- Remplace certains noms d'entités par leur acronyme ---
-  normalizeEntity(entity) {
-    if (!entity) return entity;
-    const clean = String(entity).replace(/\s*\/\s*$/, "").trim();
-    return ENTITY_MAP[clean] || clean;
-  }
+normalizeEntity(entity) {
+  if (!entity) return entity;
+
+  // 1) On (re)décodage ici aussi (important pour le cache !)
+  let clean = this.decodeHtmlEntities(String(entity));
+
+  // 2) On convertit les apostrophes typographiques en apostrophe simple
+  clean = clean.replace(/[’‘‛]/g, "'");
+
+  // 3) Petit nettoyage
+  clean = clean.replace(/\s*\/\s*$/, "").trim();
+
+  return ENTITY_MAP[clean] || clean;
+}
 
   async createWidget() {
     const widget = new ListWidget();
