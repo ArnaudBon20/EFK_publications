@@ -50,6 +50,7 @@ const CFG = isDE
       cacheKey: "efk_publications_cache_de",
       lastUpdateKey: "efk_last_update_de",
       footerLocale: "de-CH",
+      todayLabel: "Heute Abend 23 Uhr",
     }
   : {
       url: "https://www.efk.admin.ch/fr/prochaines-publications/",
@@ -64,6 +65,7 @@ const CFG = isDE
       cacheKey: "cdf_publications_cache_fr",
       lastUpdateKey: "cdf_last_update_fr",
       footerLocale: "fr-CH",
+      todayLabel: "Ce soir, 23h",
     };
 
 // --- Mapping entités -> acronymes (FR / DE) ---
@@ -103,6 +105,19 @@ class PublicationsWidget {
     this.lastUpdatePath = this.fm.joinPath(this.fm.documentsDirectory(), cfg.lastUpdateKey + ".txt");
   }
 
+formatOrTodayLabel(dateStr) {
+  const d = this.parseDMY(dateStr);
+  if (!d) return this.formatDate(dateStr);
+
+  const now = new Date();
+  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+
+  // même jour => libellé spécial
+  if (d.getTime() === todayMidnight.getTime()) return this.cfg.todayLabel;
+
+  return this.formatDate(dateStr);
+}
+  
   async run() {
     const widget = await this.createWidget();
     if (config.runsInWidget) {
@@ -353,7 +368,7 @@ normalizeEntity(entity) {
     if (grouped.length > 0) {
       const dateGroup = grouped[0];
 
-      const dateText = widget.addText(this.formatDate(dateGroup.date));
+      const dateText = widget.addText(this.formatOrTodayLabel(dateGroup.date));
       dateText.font = Font.boldSystemFont(11);
       dateText.textColor = RED;
 
