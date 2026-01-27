@@ -66,6 +66,35 @@ const CFG = isDE
       footerLocale: "fr-CH",
     };
 
+// --- Mapping entités -> acronymes (FR / DE) ---
+const ENTITY_MAP = {
+  // DE
+  "Staatssekretariat für Wirtschaft": "SECO",
+  "Direktion für Entwicklung und Zusammenarbeit": "DEZA",
+  "Staatsekretariat für Migration": "SEM",
+  "Eidgenössische Finanzmarktaufsicht": "FINMA",
+  "Eidgenössisches Departement für auswärtige Angelegenheiten": "EDA",
+  "Eidgenössisches Departement des Inneren": "EDI",
+  "Eidgenössisches Justiz- und Polizeidepartement": "EJPD",
+  "Eidgenössisches Departement für Verteidigung, Bevölkerungsschutz und Sport": "VBS",
+  "Eidgenössisches Finanzdepartement": "EFD",
+  "Eidgenössisches Departement für Wirtschaft, Bildung und Forschung": "WBF",
+  "Eidgenössisches Departement für Umwelt, Verkehr, Energie und Kommunikation": "UVEK",
+
+  // FR
+  "Secrétariat à l'économie": "SECO",
+  "Direction du développement et de la coopération": "DDC",
+  "Secrétariat d'Etat aux migrations": "SEM",
+  "Autorité fédérale de surveillance des marchés financiers": "FINMA",
+  "Département fédéral des affaires étrangères": "DFAE",
+  "Département fédéral de l'intérieur": "DFI",
+  "Département fédéral de justice et police": "DFJP",
+  "Département fédéral de la défense, de la protection de la population et des sports": "DDPS",
+  "Département fédéral des finances": "DFF",
+  "Département fédéral de l'économie, de la formation et de la recherche": "DEFR",
+  "Département fédéral de l'environnement, des transports, de l'énergie et de la communication": "DETEC",
+};
+
 class PublicationsWidget {
   constructor(cfg) {
     this.cfg = cfg;
@@ -263,6 +292,13 @@ class PublicationsWidget {
     return this.cfg.formatDate(d, mIdx, y, this.cfg.months);
   }
 
+  // --- Remplace certains noms d'entités par leur acronyme ---
+  normalizeEntity(entity) {
+    if (!entity) return entity;
+    const clean = String(entity).replace(/\s*\/\s*$/, "").trim();
+    return ENTITY_MAP[clean] || clean;
+  }
+
   async createWidget() {
     const widget = new ListWidget();
     widget.backgroundColor = LIGHT_GRAY;
@@ -320,7 +356,8 @@ class PublicationsWidget {
 
         stack.addSpacer(1);
 
-        const entityText = stack.addText(pub.entity);
+        // ✅ Acronyme si mapping connu, sinon texte original
+        const entityText = stack.addText(this.normalizeEntity(pub.entity));
         entityText.font = Font.systemFont(8);
         entityText.textColor = TEXT_SECONDARY;
         entityText.lineLimit = 1;
