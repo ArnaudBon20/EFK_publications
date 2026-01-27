@@ -224,15 +224,6 @@ class PublicationsWidget {
       }
     })
 
-    // Entités numériques mal formées: &#8217:
-    .replace(/&#(\d+):/g, (_, code) => {
-      try {
-        return String.fromCharCode(parseInt(code, 10));
-      } catch {
-        return _;
-      }
-    })
-
     // Normalisation apostrophes typographiques
     .replace(/[’‘‛]/g, "'")
     .trim();
