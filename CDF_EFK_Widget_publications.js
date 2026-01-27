@@ -82,7 +82,7 @@ const ENTITY_MAP = {
   "Eidgenössisches Departement für Umwelt, Verkehr, Energie und Kommunikation": "UVEK",
 
   // FR
-  "Secrétariat à l'économie": "SECO",
+  "Secrétariat d'Etat à l'économie": "SECO",
   "Direction du développement et de la coopération": "DDC",
   "Secrétariat d'Etat aux migrations": "SEM",
   "Autorité fédérale de surveillance des marchés financiers": "FINMA",
