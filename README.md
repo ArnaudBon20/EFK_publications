@@ -6,6 +6,7 @@ The widget is **bilingual (FR / DE)**, updates automatically, and compensates fo
 
 ---
 <img width="590" height="294" alt="Widget iOS" src="https://github.com/user-attachments/assets/b0f58479-e092-436e-b222-c3963e4cbaeb" />
+
 ---
 ## ✨ Features
 
