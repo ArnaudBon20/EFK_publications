@@ -50,8 +50,7 @@ const CFG = isDE
       cacheKey: "efk_publications_cache_de",
       lastUpdateKey: "efk_last_update_de",
       footerLocale: "de-CH",
-      todayLabel: "Heute Abend 23 Uhr", // <- demandé
-      emptyMessage: "Die Liste der nächsten Veröffentlichungen wird bald verfügbar sein.",
+      todayLabel: "HeuteAbend 23 Uhr", // <- demandé
     }
   : {
       url: "https://www.efk.admin.ch/fr/prochaines-publications/",
@@ -67,7 +66,6 @@ const CFG = isDE
       lastUpdateKey: "cdf_last_update_fr",
       footerLocale: "fr-CH",
       todayLabel: "Ce soir, 23h", // <- demandé
-      emptyMessage: "La liste des prochaines publications sera bientôt disponible.",
     };
 
 // --- Mapping entités -> acronymes (FR / DE) ---
@@ -86,6 +84,7 @@ const ENTITY_MAP = {
   "Eidgenössisches Departement für Umwelt, Verkehr, Energie und Kommunikation": "UVEK",
 
   // FR
+  "Secrétariat à l'économie": "SECO",
   "Secrétariat d'Etat à l'économie": "SECO",
   "Secrétariat d’Etat à l’économie": "SECO", // apostrophe typographique (sécurité)
   "Direction du développement et de la coopération": "DDC",
@@ -353,6 +352,7 @@ class PublicationsWidget {
     widget.setPadding(14, 14, 10, 14);
 
     const publications = await this.getPublications();
+    if (publications.length === 0) return widget;
 
     // Header
     const header = widget.addText(this.cfg.widgetTitle);
@@ -367,31 +367,6 @@ class PublicationsWidget {
     separator.backgroundColor = RED;
 
     widget.addSpacer(3);
-
-    if (publications.length === 0) {
-      const emptyText = widget.addText(this.cfg.emptyMessage);
-      emptyText.font = Font.systemFont(10);
-      emptyText.textColor = TEXT_PRIMARY;
-      emptyText.centerAlignText();
-      emptyText.lineLimit = 3;
-      emptyText.minimumScaleFactor = 0.85;
-
-      widget.addSpacer();
-
-      const lastUpdate = this.fm.fileExists(this.lastUpdatePath)
-        ? new Date(this.fm.readString(this.lastUpdatePath))
-        : new Date();
-
-      const footer = widget.addText(
-        `${this.cfg.footerLabel}: ${this.formatDate(lastUpdate.toLocaleDateString(this.cfg.footerLocale))}`
-      );
-      footer.font = Font.systemFont(7);
-      footer.textColor = TEXT_SECONDARY;
-      footer.centerAlignText();
-      footer.minimumScaleFactor = 0.8;
-
-      return widget;
-    }
 
     // Première date seulement
     const grouped = this.groupByDate(publications);
