@@ -19,8 +19,9 @@ async function loadAndRun() {
       throw new Error("Code invalide ou vide");
     }
     
-    // Exécuter le code téléchargé
-    eval(code);
+    // Wrapper le code dans une fonction async pour supporter top-level await
+    const asyncWrapper = `(async () => { ${code} })()`;
+    await eval(asyncWrapper);
     
   } catch (error) {
     // En cas d'erreur, afficher un widget d'erreur
