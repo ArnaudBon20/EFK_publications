@@ -57,7 +57,7 @@ const CFG = isDE
       url: "https://www.efk.admin.ch/fr/prochaines-publications/",
       idPrefix: "cdf-",
       widgetTitle: "CDF – Prochaines publications",
-      footerLabel: "Mis à jour",
+      footerLabel: "Mise à jour",
       emptyTitle: "Sans titre",
       emptyEntity: "Non spécifié",
       acceptLang: "fr-CH,fr;q=0.9",
