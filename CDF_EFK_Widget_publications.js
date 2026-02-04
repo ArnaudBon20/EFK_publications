@@ -427,7 +427,7 @@ class PublicationsWidget {
 
         // Acronyme si mapping connu, sinon texte original
         const entityText = stack.addText(this.normalizeEntity(pub.entity));
-        entityText.font = Font.systemFont(9);
+        entityText.font = Font.systemFont(10);
         entityText.textColor = TEXT_SECONDARY;
         entityText.lineLimit = 1;
         entityText.minimumScaleFactor = 0.7;
@@ -436,7 +436,7 @@ class PublicationsWidget {
       }
     }
 
-    widget.addSpacer(6);
+    widget.addSpacer(5);
 
     const lastUpdate = this.fm.fileExists(this.lastUpdatePath)
       ? new Date(this.fm.readString(this.lastUpdatePath))
