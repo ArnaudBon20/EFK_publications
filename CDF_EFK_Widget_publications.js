@@ -436,7 +436,7 @@ class PublicationsWidget {
       }
     }
 
-    widget.addSpacer(5);
+    widget.addSpacer(2);
 
     const lastUpdate = this.fm.fileExists(this.lastUpdatePath)
       ? new Date(this.fm.readString(this.lastUpdatePath))
